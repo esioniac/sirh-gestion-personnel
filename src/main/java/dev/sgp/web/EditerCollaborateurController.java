@@ -1,7 +1,10 @@
 package dev.sgp.web;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.ServletException;
@@ -9,18 +12,34 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import dev.sgp.entite.Collaborateur;
+import dev.sgp.service.CollaborateurService;
+import dev.sgp.util.Constantes;
+
 public class EditerCollaborateurController extends HttpServlet {
+	private CollaborateurService collabService = Constantes.COLLAB_SERVICE;
+	protected String matricule;
+
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		String matriculeParam = req.getParameter("matricule");
-		if (matriculeParam == null) {
-			resp.sendError(400, "Un matricule est attendu");
-		}
-		else {
-			resp.getWriter().write("<h1>Edition de collaborateur</h1>");
-			resp.getWriter().write("Matricule : " + matriculeParam);
+		this.matricule = req.getParameter("matricule");
 
+		Collaborateur collaborateur = null;
+		for (Collaborateur c : collabService.listerCollaborateurs()) {
+			if (c.getMatricule().toString().equals(matricule)) {
+				collaborateur = c;
+			}
 		}
+
+		if (collaborateur == null) {
+			resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			resp.sendRedirect("lister");
+		} else {
+			resp.setStatus(HttpServletResponse.SC_ACCEPTED);
+			req.setAttribute("collaborateur", collaborateur);
+			req.getRequestDispatcher("/WEB-INF/views/collab/editerCollaborateur.jsp").forward(req, resp);
+		}
+
 	}
 
 	/* (non-Javadoc)
@@ -28,21 +47,29 @@ public class EditerCollaborateurController extends HttpServlet {
 	 */
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		ArrayList<String> params = new ArrayList<>();
-		params.add(req.getParameter("matricule"));
-		params.add(req.getParameter("titre"));
+		List<String> params = new ArrayList<>();
 		params.add(req.getParameter("nom"));
 		params.add(req.getParameter("prenom"));
+		params.add(req.getParameter("date"));
+		params.add(req.getParameter("adresse"));
+		params.add(req.getParameter("num"));
 		
-		if (params.indexOf(null) == -1) {
-			resp.getWriter().write("Création d'un collaborateur avec les informations suivantes : ");
-			resp.getWriter().write("matricule=" + params.get(0) + ", titre=" + params.get(1) + ", nom=" + params.get(2) + ", prenom=" + params.get(3));		
-			resp.setStatus(HttpServletResponse.SC_CREATED);
+		if (params.indexOf("") == -1 && params.get(4).length() == 15) {
+			Collaborateur newCollab = new Collaborateur();
+			newCollab.setActif(true);
+			newCollab.setAdresse(params.get(3));
+			newCollab.setDateNaissance(LocalDate.parse(params.get(2)));
+			newCollab.setEmailPro(params.get(1).toLowerCase() + "." + params.get(0).toLowerCase() + "@societe.com");
+			newCollab.setMatricule();
+			newCollab.setNom(params.get(0));
+			newCollab.setNumeroSecuriteSociale(Long.parseLong(params.get(4)));
+			newCollab.setPhoto("/sgp/profil.png");
+			newCollab.setPrenom(params.get(1));
+			newCollab.setDepartement(Constantes.DEPART_SERVICE.getDepartementFromName(req.getParameter("depart")));
+			newCollab.setIntitulePoste(req.getParameter("intitule"));
+			Constantes.COLLAB_SERVICE.updateCollaborateur(newCollab, matricule);
+
+			resp.sendRedirect("lister");
 		}
-		else  {
-			resp.sendError(400, "Il manque au moins un paramètre");
-		}
-		
-	
 	}
 }

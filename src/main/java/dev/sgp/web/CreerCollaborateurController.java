@@ -12,11 +12,16 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import dev.sgp.entite.Collaborateur;
+import dev.sgp.entite.Departement;
+import dev.sgp.service.DepartementService;
 import dev.sgp.util.Constantes;
 
 public class CreerCollaborateurController extends HttpServlet {
+	private DepartementService departService = Constantes.DEPART_SERVICE;
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		List<Departement> departements = departService.listerDepartements();
+		req.setAttribute("departements", departements);
 		req.getRequestDispatcher("/WEB-INF/views/collab/registrationForm.jsp").forward(req, resp);
 	}
 
@@ -44,6 +49,8 @@ public class CreerCollaborateurController extends HttpServlet {
 			newCollab.setNumeroSecuriteSociale(Long.parseLong(params.get(4)));
 			newCollab.setPhoto("/sgp/profil.png");
 			newCollab.setPrenom(params.get(1));
+			newCollab.setDepartement(Constantes.DEPART_SERVICE.getDepartementFromName(req.getParameter("departement")));
+			newCollab.setIntitulePoste(req.getParameter("intitule"));
 			Constantes.COLLAB_SERVICE.sauvegarderCollaborateur(newCollab);
 			
 			resp.sendRedirect("lister");
