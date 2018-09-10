@@ -2,7 +2,9 @@
 <%@page import="dev.sgp.entite.Collaborateur"%>
 <%@page import="dev.sgp.entite.Departement"%>
 <%@page import="java.util.List"%>
-<%@ page language="java" pageEncoding="UTF-8"%>
+<%@ page language="java" pageEncoding="UTF-8" isELIgnored="false"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -20,26 +22,18 @@ dist/css/bootstrap.css">
 	<span> Filtrer par département : </span>
 	<select>
 	  <option selected> Tous </option>
-      <% 
-      	List<Departement> departements = (List<Departement>) request.getAttribute("listeDeparts");
-     	for (Departement d : departements) { 
-      %>
-      <OPTION> <%=d.getNom()%> </OPTION>
-      <% } %>
+      	<c:forEach items="${departements}" var="departement">
+	   		<option><c:out value="${ departement.nom }" /></option>
+	    </c:forEach>
 	</select>
 	<ul>
-		<%
-			List<Collaborateur> collabs = (List<Collaborateur>) request.getAttribute("listeCollabs");
-			for (Collaborateur c : collabs) {
-		%>
+		<c:forEach items="${collaborateurs}" var="collab">
 		<li>
-			<img src="<%=c.getPhoto() %>" alt="photo" width="100px" />
-			<%=c.getNom() + " " + c.getPrenom() + ", " + c.getDateNaissance() + ", " + c.getEmailPro() + ", " + c.getDepartement().getNom() + ", " + c.getIntitulePoste()%>
-			<a style="margin: 0 30px 5px 0" href="editer?<%="matricule="+c.getMatricule() %>" class="btn btn-info pull-right" role="button" aria-pressed="true">Editer</a>
+			<img src="${collab.photo}" alt="photo" width="100px" />
+			<c:out value="${collab.nom} ${collab.prenom}, ${collab.dateNaissance}. ${collab.emailPro}. ${collab.departement.nom}, ${collab.intitulePoste}" />
+ 			<a style="margin: 0 30px 5px 0" href="editer?matricule=${collab.matricule}" class="btn btn-info pull-right" role="button" aria-pressed="true">Editer</a>
 		</li>
-		<%
-			}
-		%>
+		</c:forEach>
 	</ul>
 </body>
 </html>

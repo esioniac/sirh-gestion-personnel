@@ -8,7 +8,7 @@
 <html>
     <head>
         <meta charset="UTF-8">
-        <title>Nouveau collaborateur</title>
+        <title>SGP - App</title>
     </head>
     <body>
 		<h1>Nouveau collaborateur</h1>
@@ -19,10 +19,12 @@
            <p>Date de naissance : <input type="date" name="date" /></p>
            <p>Adresse : <input type="text" name="adresse" /></p>
            <p>Numéro de sécurité sociale : <input type="text" maxlength="15" size="15" name="num" /></p>
-           <span>Département : </span> <select name="departement" size="1">
-           <c:forEach items="${ departements }" var="departement">
-   		   		<option><c:out value="${ departement.nom }" /></option>
-		   </c:forEach>
+           
+           <span>Département : </span> 
+           <select name="departement" size="1">
+	           <c:forEach items="${ departements }" var="departement">
+	   		   		<option><c:out value="${ departement.nom }" /></option>
+			   </c:forEach>
            </select>
            <p>Intitulé du poste : <input type="text" name="intitule"></p>
            <p><input type="submit"  value="Créer" /></p>
